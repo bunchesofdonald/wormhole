@@ -7,7 +7,7 @@
 	  // or returns an error code. Transport success may still
 	  // carry an application error.
 	  function handleTransportSuccess(userCallback, result) { 
-	      userCallback(result);
+	      userCallback(JSON.parse(result));
 	  };
 
 	  function handleTransportError(fn, name, args, userCallback, xmlHttpRequest) {
@@ -16,8 +16,8 @@
 	  };
 	  
 	  function createWormholeCall(name, args) { 
-	      return { 'name' : name, 
-		       'args' : args }
+	      return { 'name' : JSON.stringify(name), 
+		       'args' : JSON.stringify(args) }
 	  }
 
 	  // Execute a function, and call the callback with the result.
