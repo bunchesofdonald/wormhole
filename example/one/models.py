@@ -1,3 +1,10 @@
 from django.db import models
+from wormhole import wormhole
 
-# Create your models here.
+import time
+
+@wormhole.register
+def sleep(request, seconds):
+    print seconds
+    time.sleep(seconds)
+    return True
