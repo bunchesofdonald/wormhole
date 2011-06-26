@@ -16,7 +16,7 @@
 	  };
 	  
 	  function createWormholeCall(name, args) { 
-	      return { 'name' : JSON.stringify(name), 
+	      return { 'name' : name, 
 		       'args' : JSON.stringify(args) }
 	  }
 
