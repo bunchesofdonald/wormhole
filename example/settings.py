@@ -20,6 +20,10 @@ DATABASES = {
     }
 }
 
+import os
+
+PROJECT_ROOT = os.path.dirname(os.path.abspath(__file__))
+
 # Local time zone for this installation. Choices can be found here:
 # http://en.wikipedia.org/wiki/List_of_tz_zones_by_name
 # although not all choices may be available on all operating systems.
@@ -105,7 +109,7 @@ ROOT_URLCONF = 'example.urls'
 TEMPLATE_DIRS = (
     # Put strings here, like "/home/html/django_templates" or "C:/www/django/templates".
     # Always use forward slashes, even on Windows.
-    # Don't forget to use absolute paths, not relative paths.
+    # Don't forget to use absolute paths, not relative paths
 )
 
 INSTALLED_APPS = (
@@ -115,6 +119,8 @@ INSTALLED_APPS = (
     'django.contrib.sites',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'one',
+    'wormhole',
     # Uncomment the next line to enable the admin:
     # 'django.contrib.admin',
     # Uncomment the next line to enable admin documentation:
