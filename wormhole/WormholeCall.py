@@ -67,7 +67,6 @@ class WormholeCall(object):
 
         function_kwargs = {}
         for arg in json_args:
-            # TODO: try/except on the translation to string.
             try:
                 function_kwargs[str(arg)] = json_args[arg]
             except:
