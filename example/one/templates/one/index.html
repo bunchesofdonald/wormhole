@@ -11,7 +11,7 @@
     <script type="text/javascript">
       $(document).ready(
 	  function() { 
-	      $.wormhole.rpc('sleep', { 'seconds':10 }, function(r) { alert("Got: " + r); });
+	      $.wormhole.rpc('sleep', { 'seconds':2 }, function(r) { alert("Got: " + JSON.stringify(r)); });
 	  });
     </script>
   </head>

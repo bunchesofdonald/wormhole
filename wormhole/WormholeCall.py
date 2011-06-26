@@ -1,3 +1,5 @@
+import logging as lg
+
 from wormhole import errors
 
 from django.utils import simplejson
@@ -20,9 +22,9 @@ class WormholeCall(object):
         #if "name" not in request.POST:
          #   wormhole_json['status'] = errors.WORMHOLE_ERROR
           #  wormhole_json['error'] = errors.WORMHOLE_FUNCTION_NAME_NOT_FOUND
-
-        function_name = request.GET.get('name')
-        json_args = simplejson.loads(request.GET.get('args'))
+        
+        function_name = request.POST.get('name')
+        json_args = simplejson.loads(request.POST.get('args'))
 
         function_kwargs = {}
         for arg in json_args:
