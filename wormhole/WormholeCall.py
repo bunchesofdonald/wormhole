@@ -15,7 +15,6 @@ class WormholeCall(object):
         self.callbacks[func.__name__] = func
 
     def call(self, request):
-        print 'this is a test'
         wormhole_json = {}
 
         #if "name" not in request.POST:
