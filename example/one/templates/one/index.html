@@ -12,6 +12,7 @@
       $(document).ready(
 	  function() { 
 	      $.wormhole.rpc('sleep', { 'seconds':2 }, function(r) { alert("Got: " + JSON.stringify(r)); });
+	      $.wormhole.resolve('home', {}, function (result) { alert("Resolved home to: " + result.result); });
 	  });
     </script>
   </head>

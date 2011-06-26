@@ -39,7 +39,14 @@ class WormholeCall(object):
         
         return HttpResponse(simplejson.dumps(wormhole_json), mimetype="application/json") 
 
-    def resolve(request):
-        # reverse(viewname[, urlconf=None, args=None, kwargs=None, current_app=None])
+    def resolve(self, request):
+        view_name = request.POST.get('name')
+        try:
+            json_args = simplejson.loads(request.POST.get('args', ""))
+        except ValueError:
+            json_args = None
 
-        pass
+        view_url = reverse(view_name, kwargs=json_args)
+        
+        return HttpResponse(simplejson.dumps({'status': 'ok', 'result': view_url}))
+
