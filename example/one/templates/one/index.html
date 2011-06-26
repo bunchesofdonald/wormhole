@@ -8,6 +8,12 @@
     <script type="text/javascript" src="/static/jquery-1.6.1.min.js"></script>
     <script type="text/javascript" src="/static/json2.js"></script>
     <script type="text/javascript" src="/static/wormhole.js"></script>
+    <script type="text/javascript">
+      $(document).ready(
+	  function() { 
+	      $.wormhole.rpc('sleep', { 'seconds':10 }, function(r) { alert("Got: " + r); });
+	  });
+    </script>
   </head>
   <body>
     <h1>Index</h1>
