@@ -67,6 +67,8 @@ class WormholeCall(object):
 
         function_kwargs = {}
         for arg in json_args:
+            # Try to convert the key for each kwarg from unicode to str.
+            # Python does not support Unicode kwargs.
             try:
                 function_kwargs[str(arg)] = json_args[arg]
             except:
