@@ -17,7 +17,7 @@ class WormholeCall(object):
     def call(self, request):
         wormhole_json = {}
 
-        if name not in request.POST:
+        if "name" not in request.POST:
             wormhole_json['status'] = errors.WORMHOLE_ERROR
             wormhole_json['error'] = errors.WORMHOLE_FUNCTION_NAME_NOT_FOUND
 
