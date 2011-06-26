@@ -7,19 +7,27 @@
 	  // or returns an error code. Transport success may still
 	  // carry an application error.
 	  function handleTransportSuccess(userCallback, result) { 
-
+	      userCallback(result);
 	  };
 
-	  function handleTransportError(userCallback, result) { 
-	      
+	  function handleTransportError(fn, name, args, userCallback, xmlHttpRequest) {
+	      // Call again in 10ms.
+	      setTimeout(10, fn(name, args, userCallback));
 	  };
+	  
+	  function createWormholeCall(name, args) { 
+	      return { 'name' : name, 
+		       'args' : args }
+	  }
 
 	  // Execute a function, and call the callback with the result.
-	  this.call = function(name, args, cb) { 
+	  this.rpc = function(name, args, cb) { 
 	      $.ajax({ type    : "POST",
 		       url     : "/wormhole/call",
 		       success : function(r) { return handleTransportSuccess(cb, r); },
-		       error   : function(r) { return handleTransportError(cb, r); },
+		       error   : function(r) { return handleTransportError(
+						   _this.call, name, args, cb, r); },
+		       data    : createWormholeCall(name, args),
 		       dataType: "json" });
 	  };
 	  
@@ -30,7 +38,9 @@
 	      $.ajax({ type    : "POST",
 		       url     : "/wormhole/resolve",
 		       success : function(r) { return handleTransportSuccess(cb, r); },
-		       error   : function(r) { return handleTransportError(cb, r); },
+		       error   : function(r) { return handleTransportError(
+						   _this.resolve, name, args, cb, r); },
+		       data    : createWormholeCall(name, args),
 		       dataType: "json" });
 	  }
       };
