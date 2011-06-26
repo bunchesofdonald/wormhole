@@ -71,7 +71,7 @@ class WormholeCall(object):
                 function_kwargs[str(arg)] = json_args[arg]
             except:
                 wormhole_json['status'] = errors.WORMHOLE_ERROR
-                wormhole_json['error'].append(errors.WORMHOLE_FUNCTION_NAME_NOT_VALID)
+                wormhole_json['error'].append(errors.WORMHOLE_FUNCTION_ARGS_NOT_VALID)
 
         result = self.callbacks[function_name](request, **function_kwargs)
 
