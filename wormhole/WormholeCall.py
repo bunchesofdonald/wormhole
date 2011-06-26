@@ -15,14 +15,15 @@ class WormholeCall(object):
         self.callbacks[func.__name__] = func
 
     def call(self, request):
+        print 'this is a test'
         wormhole_json = {}
 
-        if "name" not in request.POST:
-            wormhole_json['status'] = errors.WORMHOLE_ERROR
-            wormhole_json['error'] = errors.WORMHOLE_FUNCTION_NAME_NOT_FOUND
+        #if "name" not in request.POST:
+         #   wormhole_json['status'] = errors.WORMHOLE_ERROR
+          #  wormhole_json['error'] = errors.WORMHOLE_FUNCTION_NAME_NOT_FOUND
 
-        function_name = request.POST.get('name')
-        json_args = simplejson.loads(request.POST.get('kwargs'))['args']
+        function_name = request.GET.get('name')
+        json_args = simplejson.loads(request.GET.get('kwargs'))
 
         function_kwargs = {}
         for arg in json_args:
@@ -39,6 +40,5 @@ class WormholeCall(object):
 
     def resolve(request):
         # reverse(viewname[, urlconf=None, args=None, kwargs=None, current_app=None])
-
 
         pass
