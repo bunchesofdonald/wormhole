@@ -23,7 +23,7 @@ class WormholeCall(object):
           #  wormhole_json['error'] = errors.WORMHOLE_FUNCTION_NAME_NOT_FOUND
 
         function_name = request.GET.get('name')
-        json_args = simplejson.loads(request.GET.get('kwargs'))
+        json_args = simplejson.loads(request.GET.get('args'))
 
         function_kwargs = {}
         for arg in json_args:
