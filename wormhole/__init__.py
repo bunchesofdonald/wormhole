@@ -9,7 +9,7 @@ def wormhole_autodiscover():
         try:
             import_module('%s.ajax'% app)
         except:
-            # no app.wormhole, so just fail silently
+            # no app.ajax, so just fail silently
             pass
 
 wormhole_autodiscover()
