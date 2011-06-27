@@ -1,28 +1,32 @@
 import logging
 
-from wormhole import errors
+from wormhole import status
 
 from django.utils import simplejson
 from django.http import HttpResponse
-from django.core.urlresolvers import reverse
+from django.core.urlresolvers import reverse, NoReverseMatch
 
 
 class WormholeCall(object):
+    '''
+    methods:
+        get_return_object - Creates a boilerplate return_object.
+        register - A decorator. Adds the function to Wormholes callbacks.
+        call - Gets a request, looks up the function to call in the
+            callbacks. Returns an HttpResponse containing the result of
+            the function
+
+        resolve - A proxy to django.reverse.
+    '''
+
     def __init__(self):
-        '''
-        init a WormholeCall object
-
-        methods:
-            register - A decorator. Adds the function to Wormholes callbacks.
-            call - Gets a request, looks up the function to call in the
-                callbacks. Returns an HttpResponse containing the result of
-                the function
-
-            resolve - A proxy to django.reverse.
-        '''
+        '''init a WormholeCall object'''
         self.callbacks = {}
         self.logger = logging.getLogger('wormhole')
-        self.return_object = {'status': 'ok', 'errors': [],'result': None }
+
+    def get_return_object(self):
+        ''' Get a boilerplate return_object '''
+        return {'status': None, 'errors': [], 'result': None }
 
     def register(self, func):
         '''
@@ -55,38 +59,31 @@ class WormholeCall(object):
             name : The name of the function to call
             args : A Json object of the kwargs to relay to the function
         '''
-
-        if "name" not in request.POST:
-            self.return_object['status'] = errors.WORMHOLE_ERROR
-            self.return_object['error'].append(errors.WORMHOLE_FUNCTION_NAME_NOT_FOUND)
-            self.logger.error(errors.WORMHOLE_FUNCTION_NAME_NOT_FOUND)
+        
+        return_object = self.get_return_object()
 
         function_name = request.POST.get('name')
-        json_args = simplejson.loads(request.POST.get('args'))
+
+        if function_name == None:
+            return_object['status'] = status.WORMHOLE_ERROR
+            return_object['errors'].append(status.WORMHOLE_FUNCTION_NAME_NOT_FOUND)
+            self.logger.error(status.WORMHOLE_FUNCTION_NAME_NOT_FOUND)
+            return self.response(return_object)
 
         function_kwargs = {}
+        json_args = simplejson.loads(request.POST.get('args'))
         for arg in json_args:
-            # Try to convert the key for each kwarg from unicode to str.
-            # Python does not support unicode keywords.
-            try:
-                function_kwargs[str(arg)] = json_args[arg]
-            except:
-                self.return_object['status'] = errors.WORMHOLE_ERROR
-                self.return_object['error'].append(errors.WORMHOLE_FUNCTION_ARGS_NOT_VALID)
-                self.logger.error(errors.WORMHOLE_FUNCTION_ARGS_NOT_VALID)
+            function_kwargs[arg.encode('ascii','replace')] = json_args[arg]
 
-        result = self.callbacks[function_name](request, **function_kwargs)
-
-        if result:
-            self.return_object['result'] = result
-        else:
-            self.return_object['status'] = errors.WORMHOLE_ERROR
-            self.return_object['error'].append(errors.WORMHOLE_NO_RESULT)
-            self.logger.error(errors.WORMHOLE_NO_RESULT)
-
-        return HttpResponse(simplejson.dumps(self.return_object),
-                mimetype="application/json")
-
+        try:
+            return_object['result'] = self.callbacks[function_name](request, **function_kwargs)
+            return_object['status'] = status.WORMHOLE_OK
+            return self.response(return_object)
+        except KeyError:
+            return_object['status'] = status.WORMHOLE_ERROR
+            return_object['errors'].append(status.WORMHOLE_FUNCTION_NOT_FOUND)
+            self.logger.error(status.WORMHOLE_FUNCTION_NOT_FOUND)
+            return self.response(return_object)
 
     def resolve(self, request):
         '''
@@ -105,7 +102,19 @@ class WormholeCall(object):
         except ValueError:
             json_args = None
 
-        self.return_object['result'] = reverse(view_name, kwargs=json_args)
+        return_object = self.get_return_object()
 
-        return HttpResponse(simplejson.dumps(self.return_object),
-                mimetype="application/json")
+        try:
+            return_object['status'] = status.WORMHOLE_OK
+            return_object['result'] = reverse(view_name, kwargs=json_args)
+            return self.response(return_object)
+        except NoReverseMatch as e:
+            return_object['status'] = status.WORMHOLE_ERROR
+            return_object['errors'].append(status.WORMHOLE_NO_REVERSE_MATCH)
+            self.logger.error(status.WORMHOLE_NO_REVERSE_MATCH)
+            return self.response(return_object)
+
+    def response(self, return_object):
+        ''' Encodes the return_object into json and returns it in an HttpResponse '''
+        return HttpResponse(simplejson.dumps(return_object),
+                mimetype="application/json") 
