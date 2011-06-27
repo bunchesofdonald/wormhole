@@ -24,10 +24,6 @@ class WormholeCall(object):
         self.callbacks = {}
         self.logger = logging.getLogger('wormhole')
 
-    def get_return_object(self):
-        ''' Get a boilerplate return_object '''
-        return {'status': None, 'errors': [], 'result': None }
-
     def register(self, func):
         '''
         Registers the given function with Wormhole callbacks.
@@ -43,6 +39,24 @@ class WormholeCall(object):
         #       also add support for wormhole.register(name='my_name')
 
         self.callbacks[func.__name__] = func
+
+    def get_return_object(self):
+        ''' Get a boilerplate return_object '''
+        return {'status': None, 'errors': [], 'result': None }
+
+    def get_call_name(self, request):
+        return request.POST.get('name')
+
+    def get_call_args(self, request):
+        kwargs = {}
+        json_args = request.POST.get('args')
+
+        if json_args:
+            json_args = simplejson.loads(json_args)
+            for arg in json_args:
+                kwargs[arg.encode('ascii','replace')] = json_args[arg]
+
+        return kwargs
 
     def call(self, request):
         '''
@@ -61,23 +75,18 @@ class WormholeCall(object):
         '''
         
         return_object = self.get_return_object()
-
-        function_name = request.POST.get('name')
+        function_name = self.get_call_name(request)
+        function_kwargs = self.get_call_args(request)
 
         if function_name == None:
             return_object['status'] = status.WORMHOLE_ERROR
             return_object['errors'].append(status.WORMHOLE_FUNCTION_NAME_NOT_FOUND)
             self.logger.error(status.WORMHOLE_FUNCTION_NAME_NOT_FOUND)
             return self.response(return_object)
-
-        function_kwargs = {}
-        json_args = simplejson.loads(request.POST.get('args'))
-        for arg in json_args:
-            function_kwargs[arg.encode('ascii','replace')] = json_args[arg]
-
+       
         try:
-            return_object['result'] = self.callbacks[function_name](request, **function_kwargs)
             return_object['status'] = status.WORMHOLE_OK
+            return_object['result'] = self.callbacks[function_name](request, **function_kwargs)
             return self.response(return_object)
         except KeyError:
             return_object['status'] = status.WORMHOLE_ERROR
@@ -96,19 +105,15 @@ class WormholeCall(object):
         Returns an HttpResponse with a json object:
             {"status": "ok", "errors": [], "result": "/index/"}
         '''
-        view_name = request.POST.get('name')
-        try:
-            json_args = simplejson.loads(request.POST.get('args', ""))
-        except ValueError:
-            json_args = None
-
+        view_name = self.get_call_name(request)
+        reverse_kwargs = self.get_call_args(request)
         return_object = self.get_return_object()
 
         try:
             return_object['status'] = status.WORMHOLE_OK
-            return_object['result'] = reverse(view_name, kwargs=json_args)
+            return_object['result'] = reverse(view_name, **reverse_kwargs)
             return self.response(return_object)
-        except NoReverseMatch as e:
+        except NoReverseMatch:
             return_object['status'] = status.WORMHOLE_ERROR
             return_object['errors'].append(status.WORMHOLE_NO_REVERSE_MATCH)
             self.logger.error(status.WORMHOLE_NO_REVERSE_MATCH)
