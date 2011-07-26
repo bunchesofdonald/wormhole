@@ -12,19 +12,19 @@ A Django/jQuery app that makes it dead simple to make calls to python through ja
 
 This assumes you have followed the steps above, and therefor already have a project setup.
 
-./manage start app myapp
+    ./manage start app myapp
 
 Edit myapp/ajax.py to:
 
-import wormhole
+    import wormhole
 
-@wormhole.register
-def say_my_name(request, name):
-    return 'Hello %s' % name
+    @wormhole.register
+    def say_my_name(request, name):
+        return 'Hello %s' % name
 
 In your view html, include the wormhole.js:
-<script src="{{ STATIC_URL }}wormhole.js"></script>
+    <script src="{{ STATIC_URL }}wormhole.js"></script>
 
 and then make a call to our say_my_name function:
 
-wormhole.rpc('say_my_name', {'name':'Chris'}, function(data) { alert(data.result); })
+    wormhole.rpc('say_my_name', {'name':'Chris'}, function(data) { alert(data.result); })
