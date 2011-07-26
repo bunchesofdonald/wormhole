@@ -14,7 +14,7 @@ A Django/jQuery app that makes it dead simple to make calls to python through ja
 
 Edit myapp/ajax.py to:
 
-    import wormhole
+    from wormhole import wormhole
 
     @wormhole.register
     def say_my_name(request, name):
