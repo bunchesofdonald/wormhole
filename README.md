@@ -12,7 +12,7 @@ A Django/jQuery app that makes it dead simple to make calls to python through ja
 
 This assumes you have followed the steps above, and therefor already have a project setup.
 
-    ./manage startapp myapp
+    python manage startapp myapp
 
 Edit myapp/ajax.py to:
 
