@@ -4,9 +4,9 @@ A Django/jQuery app that makes it dead simple to make calls to python through ja
 
 ## Installation
 
-1. git clone git://github.com/bunchesofdonald/wormhole.git
-2. ln -s wormhole/wormhole /path/to/my/project/wormhole
-3. Add 'wormhole' to your settings.INSTALLED_APPS
+    git clone git://github.com/bunchesofdonald/wormhole.git
+    ln -s wormhole/wormhole /path/to/my/project/wormhole
+    Add 'wormhole' to your settings.INSTALLED_APPS
 
 ## Quick Start
 
