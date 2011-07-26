@@ -23,8 +23,11 @@ Edit myapp/ajax.py to:
         return 'Hello %s' % name
 
 In your view html, include the wormhole.js:
-    `<script src="{{ STATIC_URL }}wormhole.js"></script>`
+    `<script src="{{ STATIC_URL }}wormhole.js?csrf_token={{ csrf_token }}"></script>`
+
+Notice that is {{ csrf_token }} (double brackets) NOT {% csrf_token %}. 
+The latter creates an input element, the former is the value.
 
 and then make a call to our say_my_name function:
 
-    wormhole.rpc('say_my_name', {'name':'Chris'}, function(data) { alert(data.result); })
+    $.wormhole.rpc('say_my_name', {'name':'Chris'}, function(data) { alert(data.result); })

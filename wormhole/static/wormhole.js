@@ -1,45 +1,27 @@
 ;(function ($) {
-    // Setup csrf cookie.
-    $(document).ajaxSend(
-        function(event, xhr, settings) {
-        function getCookie(name) {
-            var cookieValue = null;
-            if (document.cookie && document.cookie != '') {
-                var cookies = document.cookie.split(';');
-                for (var i = 0; i < cookies.length; i++) {
-                    var cookie = jQuery.trim(cookies[i]);
-                    // Does this cookie string begin with the name we want?
-                    if (cookie.substring(0, name.length + 1) == (name + '=')) {
-                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                        break;
-                    }
-                }
-            }
-            return cookieValue;
-        }
-        function sameOrigin(url) {
-            // url could be relative or scheme relative or absolute
-            var host = document.location.host; // host + port
-            var protocol = document.location.protocol;
-            var sr_origin = '//' + host;
-            var origin = protocol + sr_origin;
-            // Allow absolute or scheme relative URLs to same origin
-            return (url == origin || url.slice(0, origin.length + 1) == origin + '/') ||
-                (url == sr_origin || url.slice(0, sr_origin.length + 1) == sr_origin + '/') ||
-                    // or any other URL that isn't scheme relative or absolute i.e relative.
-                    !(/^(\/\/|http:|https:).*/.test(url));
-        }
-        function safeMethod(method) {
-            return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
-        }
-
-        if (!safeMethod(settings.type) && sameOrigin(settings.url)) {
-            xhr.setRequestHeader("X-CSRFToken", getCookie('csrftoken'));
-        }
-    });
-
     function Wormhole() {
         var _this = this;
+        var _options = getOptionsFromScriptSrc();
+
+        // Handles getting options passed in from script tag.
+        // The only expected option is:
+        // csrf_token : Django csrf_token
+        function getOptionsFromScriptSrc() {
+            // Get last script tag in parsed DOM.
+            // Due to the way html pages are parsed, the last one is always the one being loaded.
+            var options = {}
+            var wormhole_src = $('script').last().attr('src');
+
+            if(wormhole_src.match(/\?/)) {
+                var options_list = wormhole_src.split('?')[1].split('&');
+                for(var i = 0; i < options_list.length; i++) {
+                    var tmp = options_list[i].split('=');
+                    options[$.trim(tmp[0])] = $.trim(tmp[1]);
+                }
+            }
+
+            return options;
+        }
 
         // These functions handle transport success/error. A
         // transport error occurs when the server cannot be reached,
@@ -55,8 +37,11 @@
         };
 
         function createWormholeCall(name, args) { 
-            return { 'name' : name, 
-                'args' : JSON.stringify(args) }
+            return {
+                'name' : name, 
+                'args' : JSON.stringify(args),
+                'csrfmiddlewaretoken' : _options['csrf_token'] || ''
+            }
         }
         
         // Make a wormhole call and setup success and error handlers.
