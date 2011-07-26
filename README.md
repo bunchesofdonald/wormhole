@@ -23,7 +23,7 @@ Edit myapp/ajax.py to:
         return 'Hello %s' % name
 
 In your view html, include the wormhole.js:
-    <script src="{{ STATIC_URL }}wormhole.js"></script>
+    `<script src="{{ STATIC_URL }}wormhole.js"></script>`
 
 and then make a call to our say_my_name function:
 
